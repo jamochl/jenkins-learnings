@@ -1,0 +1,19 @@
+node {
+    try {
+        stage("scm") {
+            git branch: "feature/scripted",
+                url: "https://github.com/jamochl/jenkins_cron_test.git"
+        }
+        stage("compile app") {
+            sh "docker run --rm -v '$WORKSPACE:/usr/src/app' -w /usr/src/app gcc:11.2 gcc -o hello_world hello_world.c"
+        }
+        stage("test") {
+            sh "./hello_world"
+        }
+    } finally {
+        stage("Post") {
+            archiveArtifacts allowEmptyArchive: true, artifacts: 'hello_world'
+            sh "rm -rf *"
+        }
+    }
+}
